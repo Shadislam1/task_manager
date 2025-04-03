@@ -1,6 +1,7 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:task_manager/ui/screens/main_bottom_nav_screen.dart';
 import 'package:task_manager/ui/screens/register_screen.dart';
 
 import 'package:task_manager/ui/widgets/screen_background.dart';
@@ -62,17 +63,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: 16,),
 
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        fixedSize: Size.fromWidth(double.maxFinite),
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        )
-                    ),
-                    onPressed: () {
 
-                    },
+                    onPressed: _onTapSignInButton,
                     child: Icon(Icons.arrow_circle_right_outlined),
                   ),
 
@@ -116,7 +108,10 @@ class _LoginScreenState extends State<LoginScreen> {
         )
     );
   }
-
+  void _onTapSignInButton(){
+    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> const MainBottomNavScreen()),
+        (predicate)=> false);
+  }
   void _onTapForgotPasswordButton(){
     Navigator.push(context, MaterialPageRoute(builder: (context)=> ForgotPasswordVertifyEmailScreen()));
   }
