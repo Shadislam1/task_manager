@@ -1,5 +1,7 @@
 
 import 'package:flutter/material.dart';
+import 'package:task_manager/ui/screens/add_new_task_screen.dart';
+import 'package:task_manager/ui/widgets/task_card.dart';
 
 import '../widgets/summary_card.dart';
 
@@ -22,18 +24,23 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
              primary: false,
              shrinkWrap: true,
              itemCount: 6,
-               separatorBuilder: (context,index)=>const SizedBox(height: 8,),
+               
              itemBuilder: (context, index) {
-               return  TaskCard();
-             },)
+               return  TaskCard(taskStatus:TaskStatus.sNew);
+             },
+             separatorBuilder: (context,index)=>const SizedBox(height: 8,),
+           )
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(onPressed: (){},child: Icon(Icons.add),),
+      floatingActionButton: FloatingActionButton(onPressed: _onTapAddNewTask,child: Icon(Icons.add),),
     );
   }
-
-  Card TaskCard() {
+  void _onTapAddNewTask(){
+    Navigator.push(context, MaterialPageRoute(builder: (context)=> AddNewTaskScreen()));
+  }
+//passing enum when use snew task on return card
+  Card TaskCard({required Enum taskStatus}) {
     return Card(
           elevation: 0,
           color: Colors.white,

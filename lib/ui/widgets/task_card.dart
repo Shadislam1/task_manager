@@ -1,9 +1,17 @@
 
 import 'package:flutter/material.dart';
+enum TaskStatus{
+  sNew,
+  progress,
+  completed,
+  canceled,
+}
 class TaskCard extends StatelessWidget {
   const TaskCard({
-    super.key,
+    super.key, required this.taskStatus,
 });
+
+  final TaskStatus taskStatus;
 @override
 Widget build(BuildContext context) {
   return Card(
@@ -12,7 +20,7 @@ Widget build(BuildContext context) {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-  child: Column(
+       child: Column(
   crossAxisAlignment: CrossAxisAlignment.start,
   children: [
   const Text(
@@ -32,6 +40,7 @@ Widget build(BuildContext context) {
   shape: RoundedRectangleBorder(
   borderRadius: BorderRadius.circular(50),
   ),
+    backgroundColor: _getStatusChipColor(),
     side: BorderSide.none,
   ),
     const Spacer(),
@@ -44,4 +53,31 @@ Widget build(BuildContext context) {
       ),
   );
 }
+
+  Color _getStatusChipColor(){
+  late Color color;
+  switch(taskStatus) {
+
+    case TaskStatus.sNew:
+      color = Colors.blue;
+    case TaskStatus.progress:
+      color = Colors.purple;
+    case TaskStatus.completed:
+      color = Colors.red;
+    case TaskStatus.canceled:
+     color = Colors.green;
+  }
+  // if(taskStatus == TaskStatus.sNew){
+  //     return Colors.blue;
+  // }else if(taskStatus == TaskStatus.progress){
+  //
+  //   return Colors.purple;
+  // }else if(taskStatus == TaskStatus.canceled){
+  //   return Colors.red;
+  // }else{
+  //
+  //   return Colors.green;
+  // }
+    return color;
+  }
 }
