@@ -6,6 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:task_manager/data/service/network_client.dart';
 import 'package:task_manager/data/utils/urls.dart';
+import 'package:task_manager/ui/widgets/centered_circular_progress_indicator.dart';
 
 import 'package:task_manager/ui/widgets/screen_background.dart';
 import 'package:task_manager/ui/widgets/snack_bar_message.dart';
@@ -144,9 +145,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             
                     Visibility(
                       visible: _registrationInProgress == false,
-                      replacement: Center(
-                        child: CircularProgressIndicator(),
-                      ),
+                      replacement: CenteredCircularProgressIndicator(),
                       child: ElevatedButton(
                         onPressed: _onTapSubmitButton,
                       
@@ -204,7 +203,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     Map<String, dynamic> requestBody ={
       "email": _emailTEControler.text.trim(),
       "firstName": _firstNameTEControler.text.trim(),
-      "lastName": _firstNameTEControler.text.trim(),
+      "lastName": _lastNameTEControler.text.trim(),
       "mobile":_mobileTEControler.text.trim(),
       "password": _passwordlTEControler.text,
     };
@@ -217,10 +216,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
     
     if(response.isSuccess){
+      _clearTextFields();
      showSnackBarMessage(context, 'User registered succesfully!');
     }else{
       showSnackBarMessage(context, response.errorMessage,true);
     }
+
+  }
+  void _clearTextFields(){
+    _emailTEControler.clear();
+    _passwordlTEControler.clear();
+    _mobileTEControler.clear();
+    _firstNameTEControler.clear();
+    _lastNameTEControler.clear();
 
   }
 

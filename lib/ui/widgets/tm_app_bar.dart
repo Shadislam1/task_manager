@@ -1,6 +1,11 @@
 
 
+import 'dart:convert';
+
+
 import 'package:flutter/material.dart';
+import 'package:task_manager/ui/controllers/auth_controller.dart';
+import 'package:task_manager/ui/screens/login_screen.dart';
 import 'package:task_manager/ui/screens/update_profile_screen.dart';
 
 class TMAppBar extends StatelessWidget implements PreferredSizeWidget{
@@ -28,22 +33,30 @@ final bool? fromProfileScreen;
           children: [
             CircleAvatar(
               radius: 16,
+              backgroundImage:_shouldShowImage(AuthController.userModel?.photo)? MemoryImage(
+                base64Decode(AuthController.userModel?.photo ?? ''),
+
+              ) : null,
             ),
             SizedBox(width: 8,),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Shad Islam',style: textTheme.bodyLarge?.copyWith(
+                  Text(
+                    AuthController.userModel?.fulName ?? '',style: textTheme.bodyLarge?.copyWith(
                     color: Colors.white,
                   ),),
-                  Text('shadislam999@gmail.com',style: textTheme.bodySmall?.copyWith(color: Colors.white),),
+                  Text(
+                    AuthController.userModel?.email ?? 'Unknown',
+                    style: textTheme.bodySmall?.copyWith(
+                        color: Colors.white),),
         
                 ],
         
               ),
             ),
-            IconButton(onPressed: (){}, icon: Icon(Icons.logout),
+            IconButton(onPressed:()=> _onTapLogOutButton(context), icon: Icon(Icons.logout),
             ),
         
           ],
@@ -53,10 +66,27 @@ final bool? fromProfileScreen;
 
   }
 
+    bool  _shouldShowImage( String ? photo){
+    return photo != null && photo.isNotEmpty;
+    }
   void _onTapProfileSection(BuildContext context){
-    Navigator.push(context,MaterialPageRoute(builder: (context)=> UpdateProfileScreen()));
+    Navigator.push(
+        context,MaterialPageRoute(
+        builder: (context)=> UpdateProfileScreen())
+    );
   }
 
+  Future<void> _onTapLogOutButton
+      (BuildContext context) async {
+
+    await AuthController.clearUserData();
+    Navigator.pushAndRemoveUntil(
+        context,MaterialPageRoute(
+        builder: (context)=> LoginScreen(),
+    ),
+        (predicate)=> false
+    );
+  }
   @override
   // TODO: implement preferredSize
   Size get preferredSize => Size.fromHeight(kToolbarHeight);

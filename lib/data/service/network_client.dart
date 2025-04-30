@@ -1,9 +1,15 @@
 
 
 import 'dart:convert';
+import 'dart:ffi';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:logger/logger.dart';
+import 'package:task_manager/app.dart';
+import 'package:task_manager/ui/controllers/auth_controller.dart';
+import 'package:task_manager/ui/screens/login_screen.dart';
 
 class NetworkResponse{
   final bool isSuccess;
@@ -26,8 +32,12 @@ class NetworkClient {
 
     try{
       Uri uri = Uri.parse(url);
-      _logger.i('URL => $url');
-      Response response = await get(uri);
+      Map<String, String> headers = {
+
+        'token': AuthController.token ?? '',
+      };
+      _preRequestLog(url,headers);
+      Response response = await get(uri,headers: headers);
       _postRequestLog(url, response.statusCode,headers: response.headers,responseBody: response.body);
 
       if (response.statusCode == 200) {
@@ -37,15 +47,26 @@ class NetworkClient {
           statusCode: response.statusCode,
           data: decodedJson,
         );
-      } else {
+      } else if(response.statusCode == 401){
+        _moveToLoginScreen();
+        return NetworkResponse(
+            isSuccess: false,
+            statusCode: response.statusCode,
+            errorMessage: 'Un-authorize please log in again'
+        );
+      }
+        else {
         final decodedJson = jsonDecode(response.body);
         String errorMessage = decodedJson['data'] ?? 'Something went wrong';
         return NetworkResponse(
-          isSuccess: false, statusCode: response.statusCode,errorMessage: errorMessage);
+          isSuccess: false,
+            statusCode: response.statusCode,
+            errorMessage: errorMessage
+        );
       }
     } catch(e){
       _postRequestLog(url, -1, );
-      _logger.e(e.toString());
+
       return NetworkResponse(
         isSuccess: false, statusCode: -1, errorMessage:  e.toString());
     }
@@ -56,20 +77,19 @@ class NetworkClient {
 
     try{
       Uri uri = Uri.parse(url);
-      _preRequestLog(url,body: body);
-
-      _preRequestLog(url, );
-      Response response = await post(uri,
-          headers: {
+      Map<String, String> headers = {
         'Content-type':'Application/json',
-      },
-        body: jsonEncode(body)
+        'token': AuthController.token ?? '',
+      };
+      _preRequestLog(url,headers,body: body);
+
+
+      Response response = await post(
+        uri,
+          headers:headers,
+        body: jsonEncode(body),
       );
-      _logger.i(''
-          'Status code:${response.statusCode}\n'
-          'Headers :${response.headers}\n'
-          'Response :${response.body}'
-      );
+
       _postRequestLog(url,response.statusCode,headers:response.headers,responseBody:response.body  );
       if (response.statusCode == 200) {
         final decodedJson = jsonDecode(response.body);
@@ -78,7 +98,15 @@ class NetworkClient {
           statusCode: response.statusCode,
           data: decodedJson,
         );
-      } else {
+      } else if(response.statusCode == 401){
+        _moveToLoginScreen();
+        return NetworkResponse(
+          isSuccess: false,
+          statusCode: response.statusCode,
+           errorMessage: 'Un-authorize please log in again'
+        );
+      }
+      else {
         final decodedJson = jsonDecode(response.body);
         String errorMessage = decodedJson['data'] ?? 'Something went wrong';
         return NetworkResponse(
@@ -91,32 +119,41 @@ class NetworkClient {
           isSuccess: false, statusCode: -1, errorMessage:  e.toString());
     }
   }
-   static void _preRequestLog( String url ,
+   static void _preRequestLog( String url ,Map<String,String>headers,
        { Map<String,dynamic>? body}){
-     _logger.i('URL => $url\n'
+     _logger.i('URL => $url\nHeaders:$headers\n'
          'Body:$body',
      );
 
    }
 
    static void _postRequestLog(String url,int statusCode,
-       {Map<String,dynamic>?headers,dynamic responseBody,dynamic  errorMessage }){
-    if(errorMessage != null){
-        _logger.e(''
-            'Url:$url\n'
-            'Status code:$statusCode\n'
+       {Map<String,dynamic>?headers,dynamic responseBody,dynamic  errorMessage }) {
+     if (errorMessage != null) {
+       _logger.e(''
+           'Url:$url\n'
+           'Status code:$statusCode\n'
+           'Error Message :$responseBody'
+       );
+     } else {
+       _logger.i(''
+           'Url:$url\n'
+           'Status code:$statusCode\n'
+           'Headers :$headers\n'
+           'Response :$responseBody'
+       );
+     }
 
-            'Error Message :$responseBody'
-        );
-    }else {
-      _logger.i(''
-          'Url:$url\n'
-          'Status code:$statusCode\n'
-          'Headers :$headers\n'
-          'Response :$responseBody'
-      );
-    }
-  }
+   }
+  static void _moveToLoginScreen() {
+    AuthController.clearUserData();
+    Navigator.pushAndRemoveUntil(
+        TaskManagerApp.navigatorKey.currentContext!,
+        MaterialPageRoute(builder: (context)=>LoginScreen()),
+     (predicate) => false);
+
+   }
+
   }
 
 
