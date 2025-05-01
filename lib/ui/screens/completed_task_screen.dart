@@ -21,7 +21,9 @@ class _CompletedTaskScreenState extends State<CompletedTaskScreen> {
         itemCount: 6,
         separatorBuilder: (context,index)=>const SizedBox(height: 8,),
         itemBuilder: (context, index) {
-          return  TaskCard(taskStatus: TaskStatus.completed,);
+          // return  TaskCard(
+          //   taskStatus: TaskStatus.completed,
+          // );
         },),
 
     );
